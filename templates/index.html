@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Tools - Free Data Cleaning & API Management</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --light: #f8f9fa;
+            --dark: #212529;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background-color: #f5f7fb;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        h1 {
+            color: var(--primary);
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            font-size: 1.1rem;
+            color: #777;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+        .tool-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            padding: 20px;
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+        .tool-card:hover {
+            transform: translateY(-5px);
+        }
+        .tool-card i {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 12px;
+        }
+        .tool-card h3 {
+            font-size: 1.4rem;
+            color: var(--dark);
+            margin-bottom: 10px;
+        }
+        .tool-card p {
+            color: #666;
+            margin-bottom: 15px;
+        }
+        .tool-card .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .tool-card .btn:hover {
+            background: var(--secondary);
+        }
+        .tool-card .btn i {
+            margin-right: 5px;
+        }
+        .result-container {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background: #e9f7fe;
+            border-left: 4px solid var(--primary);
+        }
+        .result-title {
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+        .result-content {
+            color: #555;
+        }
+        .pro-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .pro-modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 90%;
+        }
+        .pro-modal h2 {
+            text-align: center;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+        .pro-modal p {
+            text-align: center;
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+        .pro-modal .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .pro-modal .btn:hover {
+            background: var(--secondary);
+        }
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #777;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Data Tools</h1>
+            <p class="subtitle">Free tools for cleaning CSVs, generating API keys, and visualizing data — no signup needed</p>
+        </header>
+
+        <div class="tools-grid">
+            <div class="tool-card" id="csv-tool">
+                <i class="fas fa-file-csv"></i>
+                <h3>CSV Cleaner</h3>
+                <p>Fix missing values, duplicates, and formatting issues in your CSV files</p>
+                <button class="btn" id="clean-btn">
+                    <i class="fas fa-cogs"></i> Clean CSV
+                </button>
+            </div>
+
+            <div class="tool-card" id="api-tool">
+                <i class="fas fa-key"></i>
+                <h3>API Key Generator</h3>
+                <p>Get safe, temporary API keys for your services — no secrets stored</p>
+                <button class="btn" id="api-btn">
+                    <i class="fas fa-unlock"></i> Generate Keys
+                </button>
+            </div>
+
+            <div class="tool-card" id="visual-tool">
+                <i class="fas fa-chart-line"></i>
+                <h3>Data Visualizer</h3>
+                <p>Turn your CSV data into interactive charts with Plotly</p>
+                <button class="btn" id="visual-btn">
+                    <i class="fas fa-eye"></i> Visualize Data
+                </button>
+            </div>
+        </div>
+
+        <div id="result-container" class="result-container" style="display: none;">
+            <h3 class="result-title">Result</h3>
+            <div id="result-content" class="result-content"></div>
+        </div>
+
+        <div id="pro-modal" class="pro-modal">
+            <div class="pro-modal-content">
+                <h2>Upgrade to Pro</h2>
+                <p>Get unlimited CSV cleaning, 100+ API keys, and premium visualizations for $5/month</p>
+                <button class="btn" id="pro-cta">Get Pro Access</button>
+            </div>
+        </div>
+
+        <footer>
+            <p>Data Tools &copy; 2</p>
+        </footer>
+    </div>
+
+    <script>
+        // Tool functionality
+        document.getElementById('clean-btn').addEventListener('click', () => {
+            const csvInput = document.createElement('input');
+            csvInput.type = 'file';
+            csvInput.accept = '.csv';
+            csvInput.onchange = (e) => {
+                const file = e.target.files[0];
+                const formData = new FormData();
+                formData.append('csv', file);
+
+                fetch('/csv-clean', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('result-content').innerText = data;
+                    document.getElementById('result-container').style.display = 'block';
+                });
+            };
+            csvInput.click();
+        });
+
+        document.getElementById('api-btn').addEventListener('click', () => {
+            fetch('/api-keys')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('result-content').innerText = JSON.stringify(data, null, 2);
+                    document.getElementById('result-container').style.display = 'block';
+                });
+        });
+
+        document.getElementById('visual-btn').addEventListener('click', () => {
+            const csvInput = document.createElement('input');
+            csvInput.type = 'file';
+            csvInput.accept = '.csv';
+            csvInput.onchange = (e) => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    fetch('/visualize', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ csv: event.target.result })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('result-content').innerHTML =
+                            `<div style="height: 400px; width: 100%; background: #f8f9fa; border-radius: 8px; border: 1px solid #ddd;">` +
+                            `<div id="plotly-chart" style="width: 100%; height: 100%;"></div>` +
+                            `</div>`;
+                        Plotly.newPlot('plotly-chart', data.chart, { responsive: true });
+                    });
+                };
+                reader.readAsText(file);
+            };
+            csvInput.click();
+        });
+
+        // Pro modal
+        document.getElementById('pro-cta').addEventListener('click', () => {
+            document.getElementById('pro-modal').style.display = 'flex';
+        });
+
+        // Close modal
+        document.querySelector('.pro-modal').addEventListener('click', (e) => {
+            if (e.target === document.querySelector('.pro-modal')) {
+                document.getElementById('pro-modal').style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
